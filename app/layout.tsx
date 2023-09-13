@@ -5,8 +5,8 @@ import { Inter } from "next/font/google";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Análisis Numérico - Sistemas de ecuaciones",
-  description: "Calculadora para la solución de sistemas de ecuaciones.",
+  title: "Proyectos de Análisis Numérico",
+  description: "Calculadoras y solucionadores para temas de análisis numérico.",
 };
 
 export default function RootLayout({

@@ -17,13 +17,24 @@ export function Navbar() {
       <NavigationMenu>
         <NavigationMenuList>
           <div className="flex h-10 items-center space-x-4 text-sm font-semibold">
-            <div>ANÁLISIS NUMÉRICO</div>
+            <Link href="/" legacyBehavior passHref>
+              <NavigationMenuLink>
+                <div>ANÁLISIS NUMÉRICO</div>
+              </NavigationMenuLink>
+            </Link>
             <Separator orientation="vertical" />
           </div>
           <NavigationMenuItem>
-            <Link href="/" legacyBehavior passHref>
+            <Link href="/system-of-equations" legacyBehavior passHref>
               <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                 Sistemas de Ecuaciones
+              </NavigationMenuLink>
+            </Link>
+          </NavigationMenuItem>
+          <NavigationMenuItem>
+            <Link href="/roots-of-equations" legacyBehavior passHref>
+              <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                Raíces de Ecuaciones
               </NavigationMenuLink>
             </Link>
           </NavigationMenuItem>

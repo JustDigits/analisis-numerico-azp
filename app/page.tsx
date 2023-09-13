@@ -1,5 +1,5 @@
-import { Navbar } from "@/components/common/main-nav";
-import { Header } from "@/components/common/page-header";
+import { Navbar } from "@/components/page-elements/main-nav";
+import { Header } from "@/components/page-elements/page-header";
 import { SolveSystemOfEquations } from "@/components/math/system-of-equations/system-of-equations";
 
 export default function Home() {

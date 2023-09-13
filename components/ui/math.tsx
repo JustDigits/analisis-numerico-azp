@@ -98,7 +98,6 @@ const parseEquationTerms = (augmentedMatrix: number[][]): string => {
   // Return the equations as a single LaTeX string, with each equation on a new line
 
   return `\\begin{align*}${equations.join(' \\\\ ')}\\end{align*}`;
-  return `${equations.join(' \\\\ ')}`;
 };
 
 export const SolveByMontantesMethod = (
@@ -130,6 +129,7 @@ export const SolveByMontantesMethod = (
     const size = matrix.length;
 
     for (let s = k + 1; s < size; s++) {
+      /* ... */
       if (matrix[s][k] == 0) continue;
 
       [matrix[k], matrix[s]] = [matrix[s], matrix[k]];
