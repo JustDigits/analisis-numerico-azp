@@ -21,7 +21,7 @@ export const Polynomial = ({
   return (
     <div className="flex py-4">
       {coefficients.map((coefficient, index) => (
-        <div className="flex items-center space-x-1 py-0.5 px-0.5">
+        <div key={index} className="flex items-center space-x-1 py-0.5 px-0.5">
           {index ? <InlineMath>+</InlineMath> : <></>}
           <EquationTerm
             coefficient={coefficient}

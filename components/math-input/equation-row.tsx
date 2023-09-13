@@ -31,7 +31,7 @@ export const EquationRow = ({
   return (
     <tr className="border-0 hover:bg-muted/0">
       {coefficientRow.map((coefficient, colIndex) => (
-        <td className="py-0.5 px-0.5">
+        <td key={colIndex} className="py-0.5 px-0.5">
           <div className="flex items-center space-x-1">
             {colIndex ? <InlineMath>+</InlineMath> : <></>}
             <EquationTerm

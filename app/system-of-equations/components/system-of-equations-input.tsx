@@ -30,17 +30,19 @@ const SystemOfEquationsBody = () => {
       <table>
         <tbody>
           {coefficients.map((_, rowIndex) => (
-            <EquationRow
-              isEditable={!rowIndex}
-              coefficientRow={coefficients[rowIndex]}
-              result={results[rowIndex]}
-              onCoefficientChange={(newCoefficient, colIndex) =>
-                setCoefficientElement(newCoefficient, rowIndex, colIndex)
-              }
-              onResultChange={(newResult) =>
-                setResultElement(newResult, rowIndex)
-              }
-            />
+            <div key={rowIndex}>
+              <EquationRow
+                isEditable={!rowIndex}
+                coefficientRow={coefficients[rowIndex]}
+                result={results[rowIndex]}
+                onCoefficientChange={(newCoefficient, colIndex) =>
+                  setCoefficientElement(newCoefficient, rowIndex, colIndex)
+                }
+                onResultChange={(newResult) =>
+                  setResultElement(newResult, rowIndex)
+                }
+              />
+            </div>
           ))}
         </tbody>
       </table>

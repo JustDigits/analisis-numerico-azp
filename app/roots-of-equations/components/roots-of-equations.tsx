@@ -206,8 +206,10 @@ const ShowSteps = () => {
         Raíces de la ecuación
       </h1>
       <div className="flex gap-4 items-center justify-center">
-        {roots.map((root) => (
-          <InlineMath>{`(x ${signString(-root)})`}</InlineMath>
+        {roots.map((root, index) => (
+          <div key={index}>
+            <InlineMath>{`(x ${signString(-root)})`}</InlineMath>
+          </div>
         ))}
       </div>
       <h1 className=" font-bold text-2xl text-center py-8">
@@ -215,10 +217,10 @@ const ShowSteps = () => {
       </h1>
       <div className="flex flex-col gap-10 text-right items-start">
         {steps.map((iteration, iterationIndex) => (
-          <table>
+          <table key={iterationIndex}>
             <tbody>
               {iteration.map((row, rowIndex) => (
-                <tr className={rowIndex % 2 == 0 ? " border-b" : ""}>
+                <tr key={rowIndex} className={rowIndex % 2 == 0 ? " border-b" : ""}>
                   <td>
                     {rowIndex && rowIndex % 2 == 0 ? (
                       <InlineMath>+</InlineMath>
@@ -228,7 +230,7 @@ const ShowSteps = () => {
                   </td>
 
                   {row.map((value, valueIndex) => (
-                    <td className="px-4">
+                    <td key={valueIndex} className="px-4">
                       <div>
                         <InlineMath>
                           {(rowIndex == 0 ? `x_{${iterationIndex}} = ` : ``) +
