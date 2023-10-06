@@ -6,7 +6,7 @@ import { VariableInput } from "./variable-input";
 type EquationTermProps = {
   coefficient: string;
   variable: string;
-  editable: boolean;
+  isEditable: boolean;
   onCoefficientChange: (newCoefficient: string) => void;
   onVariableChange: (newVariable: string) => void;
 };
@@ -14,7 +14,7 @@ type EquationTermProps = {
 export const EquationTerm = ({
   coefficient,
   variable,
-  editable,
+  isEditable,
   onCoefficientChange,
   onVariableChange,
 }: EquationTermProps) => {
@@ -27,7 +27,7 @@ export const EquationTerm = ({
       <VariableInput
         variable={variable}
         onVariableChange={onVariableChange}
-        isEditable={editable}
+        isEditable={isEditable}
       />
     </div>
   );

@@ -10,53 +10,54 @@ import { useSystemOfEquationsStore } from "../../app/system-of-equations/hooks/u
 
 type EquationRowProps = {
   isEditable: boolean;
-  coefficientRow: string[];
-  result: string;
-  onCoefficientChange: (newCoefficient: string, colIndex: number) => void;
-  onResultChange: (newResult: string) => void;
+  coefficients: string[];
+  variables: string[];
+  isEqualTo: string;
+  onCoefficientChange: (newCoefficient: string, index: number) => void;
+  onVariableChange: (newVariable: string, index: number) => void;
+  onIsEqualToChange: (newIsEqualTo: string) => void;
 };
 
 export const EquationRow = ({
+  coefficients,
+  variables,
+  isEqualTo,
   isEditable = false,
-  coefficientRow,
-  result,
   onCoefficientChange,
-  onResultChange,
+  onVariableChange,
+  onIsEqualToChange,
 }: EquationRowProps) => {
-  const variables = useSystemOfEquationsStore((state) => state.variables);
-  const setVariableElement = useSystemOfEquationsStore(
-    (state) => state.setVariableElement
-  );
-
   return (
-    <tr className="border-0 hover:bg-muted/0">
-      {coefficientRow.map((coefficient, colIndex) => (
-        <td key={colIndex} className="py-0.5 px-0.5">
+    <>
+      {coefficients.map((coefficient, index) => (
+        <td key={index} className="p-0.5">
           <div className="flex items-center space-x-1">
-            {colIndex ? <InlineMath>+</InlineMath> : <></>}
+            {index ? <InlineMath>+</InlineMath> : <></>}
             <EquationTerm
               coefficient={coefficient}
-              variable={variables[colIndex]}
-              editable={isEditable}
+              variable={variables[index]}
+              isEditable={isEditable}
               onCoefficientChange={(newCoefficient) =>
-                onCoefficientChange(newCoefficient, colIndex)
+                onCoefficientChange(newCoefficient, index)
               }
               onVariableChange={(newVariable) =>
-                setVariableElement(newVariable, colIndex)
+                onVariableChange(newVariable, index)
               }
             />
           </div>
         </td>
       ))}
-      <td className="py-0 px-0.5">
+      <td className="p-0.5">
         <div className="flex items-center space-x-1">
           <InlineMath>=</InlineMath>
           <CoefficientInput
-            coefficient={result}
-            onCoefficientChange={(newResult) => onResultChange(newResult)}
+            coefficient={isEqualTo}
+            onCoefficientChange={(newIsEqualTo) =>
+              onIsEqualToChange(newIsEqualTo)
+            }
           />
         </div>
       </td>
-    </tr>
+    </>
   );
 };

@@ -2,28 +2,29 @@ import { create } from "zustand";
 
 type SystemOfEquationsStore = {
   size: number;
-  minSize: number;
   maxSize: number;
-  coefficients: string[][];
-  variables: string[];
-  results: string[];
+  minSize: number;
   setSize: (newSize: number) => void;
-  setMinSize: (newMinSize: number) => void;
-  setMaxSize: (newMaxSize: number) => void;
-  onIncrementSize: () => void;
-  onDecrementSize: () => void;
-  onClear: () => void;
+
+  coefficients: string[][];
   setCoefficients: (newCoefficients: string[][]) => void;
-  setCoefficientRow: (newCoefficientRow: string[], row: number) => void;
   setCoefficientElement: (
     newCoefficientElement: string,
     row: number,
     column: number
   ) => void;
+
+  variables: string[];
   setVariables: (newVariables: string[]) => void;
   setVariableElement: (newVariableElement: string, index: number) => void;
-  setResults: (newResults: string[]) => void;
-  setResultElement: (newResultElement: string, index: number) => void;
+
+  equalities: string[];
+  setEqualities: (newEqualities: string[]) => void;
+  setEqualityElement: (newEqualityElement: string, index: number) => void;
+
+  onIncrementSize: () => void;
+  onDecrementSize: () => void;
+  onClear: () => void;
 };
 
 const getDefaultCoefficientValues = (size: number) => {
@@ -34,17 +35,16 @@ const getDefaultVariableValues = (size: number) => {
   return Array.from({ length: size }).map((_, i) => `x_{${i + 1}}`);
 };
 
-const getDefaultResultValues = (size: number) => {
+const getDefaultEqualityValues = (size: number) => {
   return Array(size).fill("");
 };
 
 const initialSize = 3;
-const initialMinSize = 1;
 const initialMaxSize = 10;
-
+const initialMinSize = 1;
 const initialCoefficients = getDefaultCoefficientValues(initialSize);
 const initialVariables = getDefaultVariableValues(initialSize);
-const initialResults = getDefaultResultValues(initialSize);
+const initialResults = getDefaultEqualityValues(initialSize);
 
 export const useSystemOfEquationsStore = create<SystemOfEquationsStore>(
   (set, get) => ({
@@ -53,7 +53,7 @@ export const useSystemOfEquationsStore = create<SystemOfEquationsStore>(
     maxSize: initialMaxSize,
     coefficients: initialCoefficients,
     variables: initialVariables,
-    results: initialResults,
+    equalities: initialResults,
     setSize: (newSize) => {
       const size = get().size;
       const minSize = get().minSize;
@@ -64,19 +64,35 @@ export const useSystemOfEquationsStore = create<SystemOfEquationsStore>(
       set({ size: newSize });
       newSize > size ? get().onIncrementSize() : get().onDecrementSize();
     },
-    setMinSize: (newMinSize) => {
-      if (newMinSize < 1) return;
-      set({ minSize: newMinSize });
+    setCoefficients: (newCoefficients) => {
+      set({ coefficients: newCoefficients });
     },
-    setMaxSize: (newMaxSize) => {
-      if (newMaxSize <= get().minSize) return;
-      set({ maxSize: newMaxSize });
+    setCoefficientElement: (newCoefficientElement, row, column) => {
+      const updatedCoefficients = [...get().coefficients];
+      updatedCoefficients[row][column] = newCoefficientElement;
+      set({ coefficients: updatedCoefficients });
+    },
+    setVariables: (newVariables) => {
+      set({ variables: newVariables });
+    },
+    setVariableElement: (newVariableElement, index) => {
+      const updatedVariables = [...get().variables];
+      updatedVariables[index] = newVariableElement;
+      set({ variables: updatedVariables });
+    },
+    setEqualities: (newResults) => {
+      set({ equalities: newResults });
+    },
+    setEqualityElement: (newResultsElement, index) => {
+      const updatedResults = [...get().equalities];
+      updatedResults[index] = newResultsElement;
+      set({ equalities: updatedResults });
     },
     onIncrementSize: () => {
       const size = get().size;
       const currentVariables = [...get().variables];
       const currentCoefficients = [...get().coefficients];
-      const currentResults = [...get().results];
+      const currentEqualities = [...get().equalities];
 
       // Add a new empty term to the end of each existing coefficients row
       const updatedCoefficients = currentCoefficients.map((row) => [
@@ -87,12 +103,12 @@ export const useSystemOfEquationsStore = create<SystemOfEquationsStore>(
       // Add a new empty row or with the corresponding new value
       get().setCoefficients([...updatedCoefficients, Array(size).fill("")]);
       get().setVariables([...currentVariables, `x_{${size}}`]);
-      get().setResults([...currentResults, ""]);
+      get().setEqualities([...currentEqualities, ""]);
     },
     onDecrementSize: () => {
       const currentVariables = [...get().variables];
       const currentCoefficients = [...get().coefficients];
-      const currentResults = [...get().results];
+      const currentResults = [...get().equalities];
 
       // Remove the last term from each existing row
       const updatedCoefficientRows = currentCoefficients.map((row) => {
@@ -110,43 +126,14 @@ export const useSystemOfEquationsStore = create<SystemOfEquationsStore>(
       const updatedResults = currentResults;
 
       get().setCoefficients(updatedCoefficients);
-      get().setResults(updatedResults);
+      get().setEqualities(updatedResults);
       get().setVariables(updatedVariables);
     },
     onClear: () => {
       const size = get().size;
       get().setCoefficients(getDefaultCoefficientValues(size));
       get().setVariables(getDefaultVariableValues(size));
-      get().setResults(getDefaultResultValues(size));
-    },
-    setCoefficients: (newCoefficients) => {
-      set({ coefficients: newCoefficients });
-    },
-    setCoefficientRow: (newCoefficientRow, row) => {
-      const updatedCoefficients = [...get().coefficients];
-      updatedCoefficients[row] = newCoefficientRow;
-      set({ coefficients: updatedCoefficients });
-    },
-    setCoefficientElement: (newCoefficientElement, row, column) => {
-      const updatedCoefficients = [...get().coefficients];
-      updatedCoefficients[row][column] = newCoefficientElement;
-      set({ coefficients: updatedCoefficients });
-    },
-    setVariables: (newVariables) => {
-      set({ variables: newVariables });
-    },
-    setVariableElement: (newVariableElement, index) => {
-      const updatedVariables = [...get().variables];
-      updatedVariables[index] = newVariableElement;
-      set({ variables: updatedVariables });
-    },
-    setResults: (newResults) => {
-      set({ results: newResults });
-    },
-    setResultElement: (newResultsElement, index) => {
-      const updatedResults = [...get().results];
-      updatedResults[index] = newResultsElement;
-      set({ results: updatedResults });
+      get().setEqualities(getDefaultEqualityValues(size));
     },
   })
 );

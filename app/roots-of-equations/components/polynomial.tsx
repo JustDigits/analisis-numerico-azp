@@ -26,7 +26,7 @@ export const Polynomial = ({
           <EquationTerm
             coefficient={coefficient}
             variable={variables[index]}
-            editable={editableVariables}
+            isEditable={editableVariables}
             onCoefficientChange={(value) => onCoefficientChange(value, index)}
             onVariableChange={(value) => onVariableChange(value, index)}
           />

@@ -1,152 +1,116 @@
 "use client";
 
 import {
-  renderRowSwap,
-  renderAugmentedMatrix,
-} from "@/components/math-ui/matrix";
-import { useStepHistoryStore } from "../hooks/use-step-history";
-import { useSystemOfEquationsStore } from "../hooks/use-system-of-equations";
+  wrapWithMatrixStepHistory,
+  runWithMatrixStepHistory,
+  pushTransformToStepHistory,
+  pushMatrixToStepHistory,
+  pushRowSwapToStepHistory,
+} from "../components/matrix-step-history";
+import { getRightMatrix } from "@/components/math-ui/matrix";
 
-const parseSolutions = (augmentedMatrix: number[][]): string => {
-  const solution = augmentedMatrix.map(
-    (row, idx) => row[row.length - 1] / row[idx]
+const math = require("mathjs");
+const algebrite = require("algebrite");
+
+const sanitizeCoefficients = (coefficients: string[][]) => {
+  const emptyString = /^$/;
+  return coefficients.map((row) =>
+    row.map((value) => value.replace(emptyString, "0"))
   );
-
-  return solution
-    .map((val, idx) => `x_{${idx + 1}} = ${val}`)
-    .join(", \\quad ");
 };
 
-const parseEquationTerms = (augmentedMatrix: number[][]): string => {
-  const equations = augmentedMatrix.map((row) => {
-    // Get all coefficients for x values, excluding the last column
-    const coefficients = row.slice(0, -1);
-
-    // Convert each coefficient into its corresponding LaTeX term (e.g., "3x_1", "5x_2", etc.)
-    const terms = coefficients
-      .map((coeff, colIdx) => {
-        if (coeff === 0) return ""; // Skip terms with a coefficient of 0
-        return `${coeff !== 1 ? coeff : ""} x_{${colIdx + 1}}`;
-      })
-      .filter(Boolean); // Remove any empty strings
-
-    // Construct and return the complete equation in LaTeX format
-    return `${terms.join(" + ")} &= ${row[row.length - 1]}`;
-  });
-
-  // Return the equations as a single LaTeX string, with each equation on a new line
-
-  return `\\begin{align*}${equations.join(" \\\\ ")}\\end{align*}`;
-  return `${equations.join(" \\\\ ")}`;
+const sanitizeEqualities = (equalities: string[]) => {
+  const emptyString = /^$/;
+  return equalities.map((value) => value.replace(emptyString, "0"));
 };
 
-const pushStep = (
-  matrix: number[][],
-  steps: string[],
-  setSteps: (newSteps: string[]) => void
-) => {
-  const stringArray: string[][] = matrix.map((innerArray) => {
-    return innerArray.map((value) => {
-      return value.toString();
-    });
-  });
-
-  const left = stringArray.map((row) => row.slice(0, stringArray.length));
-  const right = stringArray.map((row) => row[stringArray.length]);
-
-  const newSteps = [...steps, renderAugmentedMatrix(left, right)];
-  setSteps(newSteps);
+const isNumericZero = (value: string) => {
+  return math.isNumeric(+value) && math.isZero(+value);
 };
 
-const pushRowOperation = (
-  operation: string,
-  setSteps: (newSteps: string[]) => void,
-  steps: string[]
-) => {
-  const newSteps = [...steps, operation];
-  setSteps(newSteps);
-};
-
-const det = (
-  values: number[][],
-  newPivot: number,
-  row: number,
-  column: number
-) => {
-  return (
-    values[newPivot][newPivot] * values[row][column] -
-    values[row][newPivot] * values[newPivot][column]
+const det = (M: string[][]) => {
+  return algebrite.run(
+    `(${M[0][0]}) * (${M[1][1]}) - (${M[1][0]}) * (${M[0][1]})`
   );
 };
 
 type Montante = {
   size: number;
-  coefficients: number[][];
-  results: number[];
-  setSolution: (newSolution: string) => void;
-  onClear: () => void;
-  steps: string[];
-  setSteps: (newSteps: string[]) => void;
+  coefficients: string[][];
+  equalities: string[];
 };
+export const montante = ({ size, coefficients, equalities }: Montante) => {
+  coefficients = sanitizeCoefficients(coefficients);
+  equalities = sanitizeEqualities(equalities);
 
-export const solveByMontantesMethod = ({
-  size,
-  coefficients,
-  results,
-  setSolution,
-  onClear,
-  steps,
-  setSteps,
-}: Montante) => {
-  let prevAugmented = coefficients.map((row, idx) => [...row, results[idx]]);
-  let currentAugmented = coefficients.map((row, idx) => [...row, results[idx]]);
+  /* Augmented matrix of coefficients and equalities */
+  const augmentedMatrix = math.concat(
+    coefficients,
+    math.reshape(equalities, [size, 1])
+  );
 
-  const handleZeroPivot = (matrix: number[][], k: number): number[][] => {
-    const size = matrix.length;
+  let pivot = "1";
+  let prevMatrix = math.clone(augmentedMatrix);
+  let currentMatrix = math.clone(augmentedMatrix);
+  let matrixStepHistrory = wrapWithMatrixStepHistory();
 
-    for (let s = k + 1; s < size; s++) {
-      if (matrix[s][k] == 0) continue;
-
-      [matrix[k], matrix[s]] = [matrix[s], matrix[k]];
-      pushRowOperation(renderRowSwap(k + 1, s + 1), setSteps, steps);
-      pushStep(prevAugmented, steps, setSteps);
-      return matrix;
-    }
-
-    alert(
-      "La matriz es singular. El sistema podría no tener solución o tener infinitas soluciones."
-    );
-    return [];
-  };
-
-  let pivot = 1;
+  /* Montante's Method */
   for (let k = 0; k < size; k++) {
-    pushStep(prevAugmented, steps, setSteps);
+    /* Handle zero pivot */
+    if (isNumericZero(prevMatrix[k][k])) {
+      let hasSolution = false;
+      for (let s = k + 1; s < size; s++) {
+        if (isNumericZero(prevMatrix[s][k])) continue;
 
-    if (prevAugmented[k][k] == 0) {
-      prevAugmented = handleZeroPivot(prevAugmented, k);
+        matrixStepHistrory = runWithMatrixStepHistory(
+          matrixStepHistrory,
+          math.clone(prevMatrix),
+          getRightMatrix(prevMatrix, size),
+          pushRowSwapToStepHistory,
+          k + 1,
+          s + 1
+        );
 
-      if (prevAugmented.length === 0) {
-        onClear();
-        return <></>;
+        [prevMatrix[k], prevMatrix[s]] = [prevMatrix[s], prevMatrix[k]];
+        currentMatrix = math.clone(prevMatrix);
+
+        hasSolution = true;
       }
-      currentAugmented = prevAugmented.map((row) => [...row]);
+      if (!hasSolution) return wrapWithMatrixStepHistory();
     }
 
+    /* Apply Montante's Formula */
     for (let i = 0; i < size; i++) {
       if (k == i) continue;
-
       for (let j = 0; j <= size; j++) {
-        currentAugmented[i][j] = det(prevAugmented, k, i, j) / pivot;
+        const submatrix = math.subset(prevMatrix, math.index([k, i], [k, j]));
+        currentMatrix[i][j] = algebrite
+          .run(`(${det(submatrix)}) / (${pivot})`)
+          .replace("*", "");
       }
     }
 
-    pivot = prevAugmented[k][k];
-    prevAugmented = currentAugmented.map((row) => [...row]);
-    pushRowOperation(" {\\large \\sim} ", setSteps, steps);
-  }
+    matrixStepHistrory = runWithMatrixStepHistory(
+      matrixStepHistrory,
+      prevMatrix,
+      getRightMatrix(prevMatrix, size),
+      pushTransformToStepHistory
+    );
 
-  pushStep(currentAugmented, steps, setSteps);
-  setSolution(parseSolutions(currentAugmented));
-  return <></>;
+    /* Redefine pivot and matrix for next iteration */
+    pivot = prevMatrix[k][k];
+    prevMatrix = math.clone(currentMatrix);
+  }
+  matrixStepHistrory = runWithMatrixStepHistory(
+    matrixStepHistrory,
+    prevMatrix,
+    getRightMatrix(prevMatrix, size),
+    pushMatrixToStepHistory
+  );
+
+  matrixStepHistrory.result = matrixStepHistrory.result.map(function (value) {
+    return algebrite.run(`(${value}) / (${prevMatrix[0][0]})`).replace("*", "");
+  });
+
+  return matrixStepHistrory;
 };
