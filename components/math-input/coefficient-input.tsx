@@ -15,14 +15,9 @@ export const CoefficientInput = ({
   const handleInputChange = (value: string) => {
     // Regex pattern to check if the input is an integer ("896") or a decimal ("16.4");
     // both can be followed by a variable ("16a" and ".2b", but never ".a").
-    const regex = /^(-|\+)?((\d*\.\d*)|(\d*|\d*\.\d+)?[a-zA-Z]?)?$/
-    
-    // Temporal, only numbers
-    // const regex = /^-?\d*\.?\d*$/;
+    const regex = /^(-|\+)?((\d*\.\d*)|(\d*|\d*\.\d+)?[a-zA-Z]?)?$/;
 
-    if (regex.test(value)) {
-      onCoefficientChange(value);
-    }
+    if (regex.test(value)) onCoefficientChange(value);
   };
 
   return (

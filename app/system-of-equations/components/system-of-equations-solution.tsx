@@ -1,10 +1,10 @@
 import { BlockMath } from "react-katex";
 import "katex/dist/katex.min.css";
 
-import { useMatrixStepHistoryStroe } from "../hooks/use-matrix-step-history";
-
 import { renderAugmentedMatrix } from "@/components/math-ui/matrix";
-import { useSystemOfEquationsStore } from "../hooks/use-system-of-equations";
+
+import { useSystemOfEquationsStore } from "@/hooks/use-system-of-equations";
+import { useMatrixStepHistoryStroe } from "@/hooks/step-history/use-matrix-step-history";
 
 const parseStep = (
   matrix: string[][],
@@ -24,7 +24,7 @@ const parseSolution = (solution: string[], variables: string[]) => {
     .join(", \\quad ");
 };
 
-export const ShowMatrixSteps = () => {
+export const SystemOfEquationsSolution = () => {
   const steps = useMatrixStepHistoryStroe((state) => state.steps);
   const size = useSystemOfEquationsStore((state) => state.size);
 

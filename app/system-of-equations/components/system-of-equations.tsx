@@ -1,8 +1,7 @@
 "use client";
 
-import { ToastContainer, toast } from "react-toastify";
+import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 
@@ -11,13 +10,14 @@ import {
   ModuleOptionsBottom,
 } from "@/components/module/options";
 import { EquationRow } from "@/components/math-input/equation-row";
-import { ShowMatrixSteps } from "./show-matrix-steps";
+import { SystemOfEquationsSolution } from "./system-of-equations-solution";
 
-import { montante } from "../solution-methods/montante";
+import { toastError } from "@/components/toast/toast-error";
 import { renderSystemOfEquations } from "@/components/math-ui/system-of-equations";
+import { montante } from "../solution-methods/montante";
 
-import { useSystemOfEquationsStore } from "../hooks/use-system-of-equations";
-import { useMatrixStepHistoryStroe } from "../hooks/use-matrix-step-history";
+import { useSystemOfEquationsStore } from "@/hooks/use-system-of-equations";
+import { useMatrixStepHistoryStroe } from "@/hooks/step-history/use-matrix-step-history";
 
 const SystemOfEquationsModule = () => {
   const size = useSystemOfEquationsStore((state) => state.size);
@@ -66,13 +66,14 @@ const SystemOfEquationsModule = () => {
 };
 
 export const SystemOfEquations = () => {
+  const size = useSystemOfEquationsStore((state) => state.size);
   const coefficients = useSystemOfEquationsStore((state) => state.coefficients);
   const equalities = useSystemOfEquationsStore((state) => state.equalities);
 
-  const size = useSystemOfEquationsStore((state) => state.size);
-  const maxSize = useSystemOfEquationsStore((state) => state.maxSize);
-  const minSize = useSystemOfEquationsStore((state) => state.minSize);
-  const setSize = useSystemOfEquationsStore((state) => state.setSize);
+  const clearStepHistory = useMatrixStepHistoryStroe((state) => state.onClear);
+  const clearSystemOfEquations = useSystemOfEquationsStore(
+    (state) => state.onClear
+  );
 
   const setSteps = useMatrixStepHistoryStroe((state) => state.setSteps);
   const handleSolve = () => {
@@ -80,27 +81,15 @@ export const SystemOfEquations = () => {
     setSteps(currentSteps);
 
     if (currentSteps.matrix.length === 0) {
-      toast.error(
-        "La matriz es singular. El sistema podría no tener solución o tener soluciones infinitas.",
-        {
-          position: "top-center",
-          autoClose: 7000,
-          hideProgressBar: false,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          progress: undefined,
-          theme: "colored",
-        }
+      toastError(
+        "La matriz es singular. El sistema podría no tener solución o tener soluciones infinitas."
       );
     }
   };
 
-  const clearSystem = useSystemOfEquationsStore((state) => state.onClear);
-  const clearSteps = useMatrixStepHistoryStroe((state) => state.onClear);
   const handleClear = () => {
-    clearSystem();
-    clearSteps();
+    clearStepHistory();
+    clearSystemOfEquations();
   };
 
   return (
@@ -109,16 +98,16 @@ export const SystemOfEquations = () => {
         <div className="inline-block py-2">
           <ModuleOptionsTop
             size={size}
-            maxSize={maxSize}
-            minSize={minSize}
-            setSize={setSize}
+            maxSize={useSystemOfEquationsStore((state) => state.maxSize)}
+            minSize={useSystemOfEquationsStore((state) => state.minSize)}
+            setSize={useSystemOfEquationsStore((state) => state.setSize)}
             clearModule={handleClear}
           />
           <SystemOfEquationsModule />
           <ModuleOptionsBottom solveModule={() => handleSolve()} />
         </div>
       </div>
-      <ShowMatrixSteps />
+      <SystemOfEquationsSolution />
       <ToastContainer style={{ width: "50%", textAlign: "center" }} />
     </div>
   );

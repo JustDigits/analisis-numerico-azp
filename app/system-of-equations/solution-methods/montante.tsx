@@ -6,7 +6,7 @@ import {
   pushTransformToStepHistory,
   pushMatrixToStepHistory,
   pushRowSwapToStepHistory,
-} from "../components/matrix-step-history";
+} from "@/components/step-history/matrix-step-history";
 import { getRightMatrix } from "@/components/math-ui/matrix";
 
 const math = require("mathjs");

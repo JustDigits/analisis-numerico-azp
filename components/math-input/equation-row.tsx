@@ -6,7 +6,7 @@ import "katex/dist/katex.min.css";
 import { EquationTerm } from "./equation-term";
 import { CoefficientInput } from "./coefficient-input";
 
-import { useSystemOfEquationsStore } from "../../app/system-of-equations/hooks/use-system-of-equations";
+import { useSystemOfEquationsStore } from "../../hooks/use-system-of-equations";
 
 type EquationRowProps = {
   isEditable: boolean;

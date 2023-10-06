@@ -1,8 +1,9 @@
 import { create } from "zustand";
+
 import {
   MatrixStepHistory,
   wrapWithMatrixStepHistory,
-} from "../components/matrix-step-history";
+} from "../../components/step-history/matrix-step-history";
 
 type MatrixStepHistoryStore = {
   steps: MatrixStepHistory;
