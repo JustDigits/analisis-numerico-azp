@@ -13,14 +13,13 @@ const parser = math.parser();
 
 type ShowSolutionProps = {
   polynomial: string;
-  lagrangePolynomial: any;
-  simplifiedPolynomial: any;
 };
-const ShowSolution = ({
-  polynomial,
-  lagrangePolynomial,
-  simplifiedPolynomial,
-}: ShowSolutionProps) => {
+const ShowSolution = ({ polynomial }: ShowSolutionProps) => {
+  const lagrangePolynomial = math.parse(polynomial);
+  const simplifiedPolynomial = math.parse(
+    algebrite.run(polynomial).replaceAll(/(\*|\.{3})*/g, "")
+  );
+
   return (
     <div className="py-2">
       <h2 className="font-bold tracking-tight text-3xl py-3 flex justify-center">
@@ -39,10 +38,14 @@ const ShowSolution = ({
 };
 
 type EvaluateSolutionProps = {
-  simplifiedPolynomial: any;
+  polynomial: string;
 };
-const EvaluateSolution = ({ simplifiedPolynomial }: EvaluateSolutionProps) => {
+const EvaluateSolution = ({ polynomial }: EvaluateSolutionProps) => {
   const [value, setValue] = useState("2.7");
+  const simplifiedPolynomial = math.parse(
+    algebrite.run(polynomial).replaceAll(/(\*|\.{3})*/g, "")
+  );
+
   parser.evaluate(`f(x) = ${simplifiedPolynomial}`);
 
   const evaluatePolynomial = (value: string) => {
@@ -72,22 +75,12 @@ const EvaluateSolution = ({ simplifiedPolynomial }: EvaluateSolutionProps) => {
 
 export const InterpolationSolution = () => {
   const polynomial = useInterpolationStore((state) => state.polynomial);
-
   if (polynomial.length === 0) return <></>;
-
-  const lagrangePolynomial = math.parse(polynomial.replaceAll("*", ""));
-  const simplifiedPolynomial = math.parse(
-    algebrite.run(polynomial).replaceAll("*", "")
-  );
 
   return (
     <>
-      <ShowSolution
-        polynomial={polynomial}
-        lagrangePolynomial={lagrangePolynomial}
-        simplifiedPolynomial={simplifiedPolynomial}
-      />
-      <EvaluateSolution simplifiedPolynomial={simplifiedPolynomial} />
+      <ShowSolution polynomial={polynomial} />
+      <EvaluateSolution polynomial={polynomial} />
     </>
   );
 };

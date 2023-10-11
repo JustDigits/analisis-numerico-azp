@@ -65,6 +65,7 @@ const InterpolationModule = ({
 export const Interpolation = () => {
   const [xInput, setXInput] = useState("");
   const [yInput, setYInput] = useState("");
+  const disable = xInput.length === 0 || yInput.length === 0;
 
   const setPolynomial = useInterpolationStore((state) => state.setPolynomial);
   const setDataPoints = useInterpolationStore((state) => state.setDataPoints);
@@ -105,7 +106,10 @@ export const Interpolation = () => {
             setYInput={setYInput}
             clearModule={handleClear}
           />
-          <ModuleOptionsBottom solveModule={() => handleSolve()} />
+          <ModuleOptionsBottom
+            solveModule={() => handleSolve()}
+            disable={disable}
+          />
         </div>
       </div>
       <InterpolationSolution />
