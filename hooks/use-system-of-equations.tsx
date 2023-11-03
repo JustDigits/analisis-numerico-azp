@@ -41,7 +41,7 @@ const getDefaultEqualityValues = (size: number) => {
 
 const initialSize = 3;
 const initialMaxSize = 10;
-const initialMinSize = 1;
+const initialMinSize = 2;
 const initialCoefficients = getDefaultCoefficientValues(initialSize);
 const initialVariables = getDefaultVariableValues(initialSize);
 const initialResults = getDefaultEqualityValues(initialSize);
